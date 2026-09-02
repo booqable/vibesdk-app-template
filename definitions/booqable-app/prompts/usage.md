@@ -32,6 +32,10 @@ Booqable account through its JSON:API.
 - **Extend, don't fork**: shared style changes belong in the token layer
   (`tailwind.config.js` / the CSS variables in `src/index.css`), not per-page
   overrides.
+- **No Booqable-branded chrome.** The app renders inside the Booqable back
+  office (iframe), so never add a Booqable logo, header bar, or footer — start
+  with the app's own content edge-to-edge. `BrandLogo` exists only for rare
+  standalone contexts.
 
 ## Booqable integration
 
