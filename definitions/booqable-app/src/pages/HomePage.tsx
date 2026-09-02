@@ -47,15 +47,13 @@ export function HomePage() {
             <CardDescription>How this app talks to your Booqable account.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <StatusRow label="Environment configured" ok={Boolean(status?.configured)} />
-            <StatusRow label="Opened from Booqable (iframe session)" ok={Boolean(status?.embedded)} />
-            <StatusRow label="API authorized (OAuth)" ok={Boolean(status?.connected)} />
-            {!status?.configured && (
+            <StatusRow label="Connected to Booqable" ok={Boolean(status?.connected)} />
+            {!status?.connected && (
               <Alert>
-                <AlertTitle>Not configured yet</AlertTitle>
+                <AlertTitle>Not connected</AlertTitle>
                 <AlertDescription>
-                  Set BOOQABLE_HOST, BOOQABLE_CLIENT_ID and BOOQABLE_CLIENT_SECRET as worker
-                  variables to connect this app to Booqable.
+                  Open this app from your Booqable back office — the embed link carries the
+                  credentials this app needs. No configuration required.
                 </AlertDescription>
               </Alert>
             )}

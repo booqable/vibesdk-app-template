@@ -41,12 +41,9 @@ Then set `VIBESDK_APP_TEMPLATE=booqable-app` for the Rails app so
 
 ## Runtime configuration of generated apps
 
-Generated apps read three worker vars (unset ⇒ the starter screen shows a
-"not configured" state):
-
-- `BOOQABLE_HOST` — `https://{company}.booqable.com`
-- `BOOQABLE_CLIENT_ID` / `BOOQABLE_CLIENT_SECRET` — the company-scoped app's
-  OAuth credentials (created by `App::ProvisionCustom`).
-
-Wiring these automatically into deployed apps is part of the publish flow
-(roadmap in `documentation/features/ai_app_builder.md`).
+None. Generated apps carry no secrets: the signed iframe token Booqable appends
+to the embed URL is exchanged server-side at
+`POST {api_host}/api/app_builder/sessions` for a short-lived API access token
+(see `App::AiProject::ExchangeSessionToken` in booqable/booqable). The exchange
+only works once the app is installed and published (auto-install happens at
+project creation; publish happens when VibeSDK deploys to a stable URL).

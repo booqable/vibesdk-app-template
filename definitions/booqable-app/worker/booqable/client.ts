@@ -1,83 +1,93 @@
 /**
- * Server-side Booqable API client: OAuth token exchange, refresh, and
- * authenticated requests against the company's JSON:API (`/api/4`).
+ * Server-side Booqable integration.
+ *
+ * The app needs no pre-configured secrets: Booqable embeds it in an iframe
+ * with a signed `?token=`, and the worker exchanges that token at Booqable's
+ * public endpoint (`POST {api_host}/api/app_builder/sessions`) for short-lived
+ * API credentials plus the company identity.
  */
-import type { Env } from '../core-utils';
 
-export type BooqableEnv = Env & {
-    BOOQABLE_HOST?: string;          // e.g. https://acme.booqable.com
-    BOOQABLE_CLIENT_ID?: string;     // OAuth application uid
-    BOOQABLE_CLIENT_SECRET?: string; // OAuth application secret (also signs iframe tokens)
-};
-
-export interface BooqableTokens {
+export interface BooqableSession {
     access_token: string;
-    refresh_token?: string;
-    created_at?: number;
-    expires_in?: number;
+    api_host: string;
+    /** Epoch ms after which the access token is expired. */
+    expires_at: number;
+    company_id: string;
+    slug: string;
+    user_email: string | null;
+    currency?: string;
+    currency_position?: string;
+    currency_format?: string;
+    distance_unit?: string;
 }
 
-export function booqableConfigured(env: BooqableEnv): boolean {
-    return Boolean(env.BOOQABLE_HOST && env.BOOQABLE_CLIENT_ID && env.BOOQABLE_CLIENT_SECRET);
+function base64UrlDecode(input: string): string {
+    const base64 = input.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(input.length / 4) * 4, '=');
+    return atob(base64);
 }
 
-const TOKEN_PATH = '/api/boomerang/oauth/token';
+/** Reads the (unverified) claims from the iframe JWT — verification happens on Booqable. */
+export function unverifiedClaims(token: string): Record<string, unknown> | null {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
 
-async function tokenRequest(env: BooqableEnv, params: Record<string, string>): Promise<BooqableTokens | null> {
-    const response = await fetch(`${env.BOOQABLE_HOST}${TOKEN_PATH}`, {
+    try {
+        return JSON.parse(base64UrlDecode(parts[1]));
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Exchanges the iframe token for a session. The exchange endpoint host comes
+ * from the token's own `api_host` claim; Booqable verifies the signature, so a
+ * forged claim can only ever yield the forger's own credentials.
+ */
+export async function exchangeIframeToken(token: string): Promise<BooqableSession | null> {
+    const claims = unverifiedClaims(token);
+    const apiHost = typeof claims?.api_host === 'string' ? claims.api_host : null;
+    if (!apiHost || !/^https?:\/\//.test(apiHost)) return null;
+
+    const response = await fetch(`${apiHost}/api/app_builder/sessions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            client_id: env.BOOQABLE_CLIENT_ID ?? '',
-            client_secret: env.BOOQABLE_CLIENT_SECRET ?? '',
-            ...params
-        })
-    });
-    if (!response.ok) return null;
-    return response.json<BooqableTokens>();
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+    }).catch(() => null);
+    if (!response?.ok) return null;
+
+    const body = await response.json<{ data?: Record<string, unknown> }>().catch(() => null);
+    const data = body?.data;
+    if (!data?.access_token) return null;
+
+    return {
+        access_token: String(data.access_token),
+        api_host: String(data.api_host ?? apiHost),
+        expires_at: Date.now() + Number(data.expires_in ?? 3600) * 1000,
+        company_id: String(data.company_id ?? ''),
+        slug: String(data.slug ?? ''),
+        user_email: (data.user_email as string | null) ?? null,
+        currency: data.currency as string | undefined,
+        currency_position: data.currency_position as string | undefined,
+        currency_format: data.currency_format as string | undefined,
+        distance_unit: data.distance_unit as string | undefined
+    };
 }
 
-/** Exchanges an authorization code (from /api/oauth/callback) for tokens. */
-export async function exchangeCode(env: BooqableEnv, code: string, redirectUri: string): Promise<BooqableTokens | null> {
-    return tokenRequest(env, { grant_type: 'authorization_code', code, redirect_uri: redirectUri });
-}
-
-/** Refreshes an expired access token. */
-export async function refreshTokens(env: BooqableEnv, refreshToken: string): Promise<BooqableTokens | null> {
-    return tokenRequest(env, { grant_type: 'refresh_token', refresh_token: refreshToken });
-}
-
-export interface BooqableResponse {
-    response: Response;
-    /** Present when the access token was refreshed — persist it back into the session cookie. */
-    refreshedTokens?: BooqableTokens;
+export function sessionExpired(session: BooqableSession): boolean {
+    return Date.now() >= session.expires_at - 30_000;
 }
 
 /**
  * Performs an authenticated JSON:API request (path is relative to `/api/4`,
- * e.g. `/orders?page[size]=5`). Retries once through a token refresh on 401.
+ * e.g. `/orders?page[size]=5`).
  */
-export async function booqableRequest(
-    env: BooqableEnv,
-    tokens: BooqableTokens,
-    path: string,
-    init: RequestInit = {}
-): Promise<BooqableResponse> {
-    const call = (accessToken: string) => fetch(`${env.BOOQABLE_HOST}/api/4${path}`, {
+export async function booqableRequest(session: BooqableSession, path: string, init: RequestInit = {}): Promise<Response> {
+    return fetch(`${session.api_host}/api/4${path}`, {
         ...init,
         headers: {
             'Content-Type': 'application/json',
             ...(init.headers ?? {}),
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${session.access_token}`
         }
     });
-
-    let response = await call(tokens.access_token);
-    if (response.status !== 401 || !tokens.refresh_token) return { response };
-
-    const refreshed = await refreshTokens(env, tokens.refresh_token);
-    if (!refreshed) return { response };
-
-    response = await call(refreshed.access_token);
-    return { response, refreshedTokens: refreshed };
 }

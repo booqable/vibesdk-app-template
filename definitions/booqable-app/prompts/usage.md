@@ -35,25 +35,23 @@ Booqable account through its JSON:API.
 
 ## Booqable integration
 
-Environment (worker vars, set via `wrangler.jsonc` `vars` or `.dev.vars` locally):
-- `BOOQABLE_HOST` — the company's Booqable URL, e.g. `https://acme.booqable.com`
-- `BOOQABLE_CLIENT_ID` / `BOOQABLE_CLIENT_SECRET` — the app's OAuth credentials
-  (the secret also verifies iframe session tokens).
+**Zero configuration.** No environment variables or API keys are needed — the
+iframe token Booqable appends to the app's URL is the only credential.
 
 Flow (already wired — keep it):
 1. Booqable opens the app in an iframe with `?token=<JWT>`. The frontend calls
-   `initBooqableSession()` on load (see `src/pages/HomePage.tsx`), which POSTs the token to
-   `/api/booqable/session`; the worker verifies it (HS256, client secret) and
-   sets a signed identity cookie (company slug, user email, currency context).
-2. Booqable's install flow redirects to `/api/oauth/callback?code=…`; the worker
-   exchanges the code at `{BOOQABLE_HOST}/api/boomerang/oauth/token` and stores
-   access + refresh tokens in a signed HttpOnly cookie.
+   `initBooqableSession()` on load (see `src/pages/HomePage.tsx`), which POSTs
+   the token to `/api/booqable/session`.
+2. The worker exchanges it at Booqable's session endpoint
+   (`POST {api_host}/api/app_builder/sessions`) — Booqable verifies the
+   signature and returns a short-lived API access token plus the company
+   identity (slug, user email, currency context), stored in an HttpOnly cookie.
 3. The frontend reaches the Booqable API through the authenticated proxy:
    `booqableApi('/orders?page[size]=5&sort=-created_at')` →
-   `GET /api/booqable/proxy/orders?…` → `{BOOQABLE_HOST}/api/4/orders?…`
-   with automatic token refresh on 401.
+   `GET /api/booqable/proxy/orders?…` → `{api_host}/api/4/orders?…`.
+   Sessions are short-lived; `booqableApi` renews once automatically on 401.
 
-`GET /api/booqable/status` reports `{configured, embedded, connected, company}` —
+`GET /api/booqable/status` reports `{connected, company, user_email, currency}` —
 use it to render helpful empty states (see the starter `HomePage.tsx`).
 
 ## Booqable JSON:API essentials
@@ -72,6 +70,7 @@ use it to render helpful empty states (see the starter `HomePage.tsx`).
 - Keep the session bootstrap (`initBooqableSession()` on app load) in place.
 - Keep the routes `/api/booqable/session`, `/api/booqable/status`,
   `/api/oauth/callback`, and `/api/booqable/proxy/*` intact.
+- Never store or log the iframe token or access tokens anywhere else.
 - Build the user's requested app in `src/` — replace the starter screen in
   `src/pages/HomePage.tsx` (add routes in `src/main.tsx`), but reuse its status
   handling for unconfigured/unconnected states.
