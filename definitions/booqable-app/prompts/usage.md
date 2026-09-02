@@ -54,6 +54,13 @@ Flow (already wired — keep it):
 `GET /api/booqable/status` reports `{connected, company, user_email, currency}` —
 use it to render helpful empty states (see the starter `HomePage.tsx`).
 
+**Deployed apps additionally receive** `BOOQABLE_HOST`, `BOOQABLE_CLIENT_ID`
+and `BOOQABLE_CLIENT_SECRET` as worker secrets (Booqable sets them at publish).
+The session exchange above remains the default auth path; the credentials are
+for advanced flows — e.g. running the standard OAuth authorization-code flow
+when the app later serves multiple companies. Never expose them to the
+frontend or log them.
+
 ## Booqable JSON:API essentials
 
 - Base path `/api/4` (JSON:API: `data`, `attributes`, `relationships`;
