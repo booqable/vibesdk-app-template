@@ -22,16 +22,16 @@ Booqable account through its JSON:API.
   checkbox, radio-group, switch, badge, tag, card, alert, tabs, tooltip, avatar,
   separator). Brand assets: `@/components/brand-logo`; theming:
   `@/components/theme-provider` and `@/components/theme-toggle`.
-- **Use tokens, never raw values.** Colors, radii, type and elevation are defined
-  in `src/index.css` (Tailwind v4 `@theme`). Use classes that map to them
+- **Use tokens, never raw values.** The palette, radii, type scale and
+  elevation live in `tailwind.config.js`; the semantic light/dark values are
+  CSS variables in `src/index.css`. Use classes that map to them
   (`bg-primary`, `text-muted-foreground`, `text-fg-muted`, `rounded-xl`,
   `text-display-md`, `shadow-md`) — no hex codes or pixel values.
 - **Support light and dark.** Keep `ThemeProvider` mounted (see `src/main.tsx`)
   and use semantic tokens so both themes work; never hardcode one mode's color.
-- **Extend, don't fork**: shared style changes belong in the token layer of
-  `src/index.css`, not per-page overrides.
-- This project uses **Tailwind v4** (CSS-first config via `@theme` in
-  `src/index.css`). There is no `tailwind.config.js` — do not create one.
+- **Extend, don't fork**: shared style changes belong in the token layer
+  (`tailwind.config.js` / the CSS variables in `src/index.css`), not per-page
+  overrides.
 
 ## Booqable integration
 
@@ -71,7 +71,8 @@ use it to render helpful empty states (see the starter `HomePage.tsx`).
 - Keep the routes `/api/booqable/session`, `/api/booqable/status`,
   `/api/oauth/callback`, and `/api/booqable/proxy/*` intact.
 - Never store or log the iframe token or access tokens anywhere else.
-- Build the user's requested app in `src/` — replace the starter screen in
-  `src/pages/HomePage.tsx` (add routes in `src/main.tsx`), but reuse its status
-  handling for unconfigured/unconnected states.
+- Build the user's requested app in `src/` — the starter `HomePage.tsx` is a
+  "Bo is building your app" placeholder; replace it with the requested app
+  (add routes in `src/main.tsx`), keeping the `initBooqableSession()` bootstrap
+  and a helpful state when `status.connected` is false.
 - **DO NOT MODIFY CORS OR OVERRIDE ERROR HANDLERS.**

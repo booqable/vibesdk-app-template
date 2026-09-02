@@ -1,131 +1,17 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
-
-@custom-variant dark (&:is(.dark *));
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /*
-  Boomerang — Booqable design system
+  Boomerang — Booqable design system (Tailwind v3).
   Tokens grounded in the Figma library "Boomerang: Booqable design system".
-  Primary brand blue #136deb, blue-tinted neutral scale, Proxima Nova type scale.
+  Primary brand blue #136deb, blue-tinted neutral scale; palette, radii, type
+  scale and elevation live in tailwind.config.js. The semantic light/dark
+  values below are consumed there as CSS variables.
   Proxima Nova is a commercial typeface and cannot be bundled; the runtime font
-  stack falls back to Mulish (loaded via @fontsource/mulish) as the closest free match.
+  stack falls back to Mulish (loaded via @fontsource/mulish) as the closest
+  free match.
 */
-
-@theme inline {
-  /* Fonts */
-  --font-sans: 'Mulish', ui-sans-serif, system-ui, sans-serif;
-
-  /* Brand + neutral scales (exact Figma hex) */
-  --color-brand-25: #f5f9ff;
-  --color-brand-50: #edf5ff;
-  --color-brand-100: #e2efff;
-  --color-brand-200: #ddebff;
-  --color-brand-300: #bbdbfa;
-  --color-brand-400: #86c2ff;
-  --color-brand-500: #5a9fff;
-  --color-brand-600: #136deb;
-  --color-brand-700: #2466c3;
-  --color-brand-800: #3061a6;
-  --color-brand-900: #36537c;
-
-  --color-gray-25: #f8fafc;
-  --color-gray-50: #f0f4f8;
-  --color-gray-100: #e2e9f0;
-  --color-gray-200: #cfd9e2;
-  --color-gray-300: #b4bfcb;
-  --color-gray-400: #9ba6b1;
-  --color-gray-500: #737f8c;
-  --color-gray-600: #5c6670;
-  --color-gray-700: #394046;
-  --color-gray-800: #2e3338;
-  --color-gray-900: #131414;
-
-  /* Semantic tokens -> CSS vars */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  /* Ergonomic aliases used across components: bg-bg, text-fg, text-fg-muted, text-fg-subtle */
-  --color-bg: var(--background);
-  --color-fg: var(--foreground);
-  --color-fg-muted: var(--muted-foreground);
-  --color-fg-subtle: var(--color-gray-400);
-  --color-surface: var(--card);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-hover: var(--destructive-hover);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-destructive-subtle: var(--destructive-subtle);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-success-subtle: var(--success-subtle);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-warning-subtle: var(--warning-subtle);
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-link: var(--link);
-
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-
-  /* Radii — Figma: 8 (controls), 12 (cards), 20 (sections) */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
-  --radius-3xl: 20px;
-
-  /* Type scale — Proxima Nova specimen from Figma */
-  --text-display-2xl: 4.5rem;
-  --text-display-2xl--line-height: 5.625rem;
-  --text-display-2xl--letter-spacing: -0.02em;
-  --text-display-xl: 3.75rem;
-  --text-display-xl--line-height: 4.5rem;
-  --text-display-xl--letter-spacing: -0.02em;
-  --text-display-lg: 3rem;
-  --text-display-lg--line-height: 3.75rem;
-  --text-display-lg--letter-spacing: -0.02em;
-  --text-display-md: 2.25rem;
-  --text-display-md--line-height: 2.75rem;
-  --text-display-md--letter-spacing: -0.02em;
-  --text-display-sm: 1.875rem;
-  --text-display-sm--line-height: 2.375rem;
-  --text-display-xs: 1.5rem;
-  --text-display-xs--line-height: 2rem;
-  --text-xl: 1.25rem;
-  --text-xl--line-height: 1.875rem;
-  --text-lg: 1.125rem;
-  --text-lg--line-height: 1.75rem;
-  --text-md: 1rem;
-  --text-md--line-height: 1.5rem;
-  --text-sm: 0.875rem;
-  --text-sm--line-height: 1.25rem;
-  --text-xs: 0.75rem;
-  --text-xs--line-height: 1.125rem;
-
-  /* Elevation — Figma button/card shadows */
-  --shadow-xs: 0 1px 2px 0 rgba(10, 13, 18, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(10, 13, 18, 0.1), 0 1px 2px -1px rgba(10, 13, 18, 0.1);
-  --shadow-md: 0 4px 8px -2px rgba(10, 13, 18, 0.1), 0 2px 4px -2px rgba(10, 13, 18, 0.06);
-  --shadow-lg: 0 12px 16px -4px rgba(10, 13, 18, 0.08), 0 4px 6px -2px rgba(10, 13, 18, 0.03);
-}
 
 :root {
   color-scheme: light;
@@ -226,7 +112,8 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
   }
   body {
     @apply bg-background text-foreground;
