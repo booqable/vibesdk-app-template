@@ -1,0 +1,78 @@
+# Usage – Booqable App
+
+A Vite + React + Hono (Cloudflare Workers) starter for **custom Booqable apps**:
+tools that run embedded in the Booqable back office and talk to the company's
+Booqable account through its JSON:API.
+
+## Project structure
+
+- `src/` — React frontend using **Boomerang**, Booqable's design system.
+- `worker/userRoutes.ts` — Hono routes. The Booqable wiring lives here; add new
+  API routes below it. **Never modify `worker/index.ts` or `worker/core-utils.ts`.**
+- `worker/booqable/` — Booqable integration internals (JWT verification, OAuth
+  token exchange/refresh, API client). Treat as a library: use it, don't rewrite it.
+- `src/lib/booqable.ts` — frontend helpers (`initBooqableSession`,
+  `getBooqableStatus`, `booqableApi`).
+- `docs/boomerang/` — the design system reference (foundations, components,
+  brand assets). Read it before building UI.
+
+## Boomerang design system (MUST follow)
+
+- Import components from `@/components/ui/*` (button, input, textarea, label,
+  checkbox, radio-group, switch, badge, tag, card, alert, tabs, tooltip, avatar,
+  separator). Brand assets: `@/components/brand-logo`; theming:
+  `@/components/theme-provider` and `@/components/theme-toggle`.
+- **Use tokens, never raw values.** Colors, radii, type and elevation are defined
+  in `src/index.css` (Tailwind v4 `@theme`). Use classes that map to them
+  (`bg-primary`, `text-muted-foreground`, `text-fg-muted`, `rounded-xl`,
+  `text-display-md`, `shadow-md`) — no hex codes or pixel values.
+- **Support light and dark.** Keep `ThemeProvider` mounted (see `src/main.tsx`)
+  and use semantic tokens so both themes work; never hardcode one mode's color.
+- **Extend, don't fork**: shared style changes belong in the token layer of
+  `src/index.css`, not per-page overrides.
+- This project uses **Tailwind v4** (CSS-first config via `@theme` in
+  `src/index.css`). There is no `tailwind.config.js` — do not create one.
+
+## Booqable integration
+
+Environment (worker vars, set via `wrangler.jsonc` `vars` or `.dev.vars` locally):
+- `BOOQABLE_HOST` — the company's Booqable URL, e.g. `https://acme.booqable.com`
+- `BOOQABLE_CLIENT_ID` / `BOOQABLE_CLIENT_SECRET` — the app's OAuth credentials
+  (the secret also verifies iframe session tokens).
+
+Flow (already wired — keep it):
+1. Booqable opens the app in an iframe with `?token=<JWT>`. The frontend calls
+   `initBooqableSession()` on load (see `src/pages/HomePage.tsx`), which POSTs the token to
+   `/api/booqable/session`; the worker verifies it (HS256, client secret) and
+   sets a signed identity cookie (company slug, user email, currency context).
+2. Booqable's install flow redirects to `/api/oauth/callback?code=…`; the worker
+   exchanges the code at `{BOOQABLE_HOST}/api/boomerang/oauth/token` and stores
+   access + refresh tokens in a signed HttpOnly cookie.
+3. The frontend reaches the Booqable API through the authenticated proxy:
+   `booqableApi('/orders?page[size]=5&sort=-created_at')` →
+   `GET /api/booqable/proxy/orders?…` → `{BOOQABLE_HOST}/api/4/orders?…`
+   with automatic token refresh on 401.
+
+`GET /api/booqable/status` reports `{configured, embedded, connected, company}` —
+use it to render helpful empty states (see the starter `HomePage.tsx`).
+
+## Booqable JSON:API essentials
+
+- Base path `/api/4` (JSON:API: `data`, `attributes`, `relationships`;
+  `filter[...]`, `page[number|size]`, `sort`, `include` query params).
+- Key resources: `orders`, `products`, `product_groups`, `customers`,
+  `plannings` (pickups/returns), `stock_items`, `invoices`, `payments`,
+  `locations`, `employees`.
+- Full reference: https://developers.booqable.com
+- Always render money using the session's `currency` context; amounts are in cents
+  (`*_in_cents` attributes).
+
+## Rules
+
+- Keep the session bootstrap (`initBooqableSession()` on app load) in place.
+- Keep the routes `/api/booqable/session`, `/api/booqable/status`,
+  `/api/oauth/callback`, and `/api/booqable/proxy/*` intact.
+- Build the user's requested app in `src/` — replace the starter screen in
+  `src/pages/HomePage.tsx` (add routes in `src/main.tsx`), but reuse its status
+  handling for unconfigured/unconnected states.
+- **DO NOT MODIFY CORS OR OVERRIDE ERROR HANDLERS.**
