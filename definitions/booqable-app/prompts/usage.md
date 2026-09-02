@@ -54,6 +54,14 @@ Flow (already wired — keep it):
 `GET /api/booqable/status` reports `{connected, company, user_email, currency}` —
 use it to render helpful empty states (see the starter `HomePage.tsx`).
 
+**Important — automated screenshots have no Booqable session.** The build
+system inspects the app with a headless browser that opens the preview URL
+without the iframe token, so `connected` is false there. Every screen must
+render a complete, styled UI in that state (realistic empty states or clearly
+labeled sample placeholders) — never a blank page, spinner-forever, or error.
+Do not "fix" missing data you observe in screenshots; it is the expected
+disconnected state.
+
 **Deployed apps additionally receive** `BOOQABLE_HOST`, `BOOQABLE_CLIENT_ID`
 and `BOOQABLE_CLIENT_SECRET` as worker secrets (Booqable sets them at publish).
 The session exchange above remains the default auth path; the credentials are
