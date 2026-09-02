@@ -20,7 +20,10 @@ Booqable account through its JSON:API.
 
 - Import components from `@/components/ui/*` (button, input, textarea, label,
   checkbox, radio-group, switch, badge, tag, card, alert, tabs, tooltip, avatar,
-  separator). Brand assets: `@/components/brand-logo`; theming:
+  separator). **That list is complete** — there is no table, select, dialog,
+  dropdown or toast component. Build those from plain elements styled with the
+  tokens (e.g. a `<table>` with `border-border`, `text-sm`, `text-fg-muted`
+  headers) instead of importing components that don't exist. Brand assets: `@/components/brand-logo`; theming:
   `@/components/theme-provider` and `@/components/theme-toggle`.
 - **Use tokens, never raw values.** The palette, radii, type scale and
   elevation live in `tailwind.config.js`; the semantic light/dark values are
