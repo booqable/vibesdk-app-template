@@ -1,15 +1,14 @@
 name: "booqable-app"
-description: "Booqable custom app starter: the Boomerang design system with Booqable iframe session, OAuth, and API proxy wiring"
+description: "Booqable custom app starter: shadcn/ui themed to Booqable (Boomerang) with iframe session, OAuth, and API proxy wiring"
 base_reference: "vite-reference"
 projectType: app
 
-# The Boomerang design system replaces the reference frontend. It runs on the
-# reference's own Tailwind v3 toolchain (the overlay's tailwind.config.js
-# carries the Boomerang theme) so sandbox dev/build behavior is identical to
-# every other template. Excludes run AFTER overlays, so only reference files
-# the overlay does NOT provide are listed here — the error-reporting
-# infrastructure (ErrorBoundary/ErrorFallback/RouteErrorBoundary/errorReporter)
-# is kept.
+# The reference already ships the full shadcn/ui set; this overlay keeps it and
+# re-themes it to Booqable via tokens (tailwind.config.js + src/index.css, light
+# mode only). So the excludes here only drop the reference demo/chrome and the
+# sidebar (which needs the excluded use-mobile hook and has no place in an
+# embedded app). The error-reporting infra
+# (ErrorBoundary/ErrorFallback/RouteErrorBoundary/errorReporter) is kept.
 excludes:
   - "src/App.css"
   - "src/assets/**"
@@ -18,42 +17,10 @@ excludes:
   - "src/components/TemplateDemo.tsx"
   - "src/components/ThemeToggle.tsx"
   - "src/components/layout/**"
-  # Reference shadcn/Radix components not part of Boomerang (Tailwind v3 styling).
-  - "src/components/ui/accordion.tsx"
-  - "src/components/ui/alert-dialog.tsx"
-  - "src/components/ui/aspect-ratio.tsx"
-  - "src/components/ui/breadcrumb.tsx"
-  - "src/components/ui/calendar.tsx"
-  - "src/components/ui/carousel.tsx"
-  - "src/components/ui/chart.tsx"
-  - "src/components/ui/collapsible.tsx"
-  - "src/components/ui/command.tsx"
-  - "src/components/ui/context-menu.tsx"
-  - "src/components/ui/dialog.tsx"
-  - "src/components/ui/drawer.tsx"
-  - "src/components/ui/dropdown-menu.tsx"
-  - "src/components/ui/form.tsx"
-  - "src/components/ui/hover-card.tsx"
-  - "src/components/ui/input-otp.tsx"
-  - "src/components/ui/menubar.tsx"
-  - "src/components/ui/navigation-menu.tsx"
-  - "src/components/ui/pagination.tsx"
-  - "src/components/ui/popover.tsx"
-  - "src/components/ui/progress.tsx"
-  - "src/components/ui/resizable.tsx"
-  - "src/components/ui/scroll-area.tsx"
-  - "src/components/ui/select.tsx"
-  - "src/components/ui/sheet.tsx"
+  # Needs the excluded use-mobile hook; an embedded Booqable app has no sidebar.
   - "src/components/ui/sidebar.tsx"
-  - "src/components/ui/skeleton.tsx"
-  - "src/components/ui/slider.tsx"
-  - "src/components/ui/sonner.tsx"
-  - "src/components/ui/table.tsx"
-  - "src/components/ui/toggle-group.tsx"
-  - "src/components/ui/toggle.tsx"
 
 package_patches:
   name: "booqable-app"
   dependencies:
-    "@base-ui/react": "^1.5.0"
     "@fontsource/mulish": "^5.2.5"

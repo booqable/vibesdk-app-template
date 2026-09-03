@@ -7,9 +7,9 @@ Use this template when the user wants:
 - Anything described as "an app for my Booqable account", "a dashboard for my
   rentals", "a planner for pickups/returns/deliveries", or an internal tool for
   a rental business built through Booqable's AI app builder.
-- UI that matches Booqable's look and feel — this template ships **Boomerang**,
-  Booqable's design system (brand blue palette, blue-tinted neutrals, light mode
-  only, and a full component library).
+- UI that matches Booqable's look and feel — this template ships the full
+  **shadcn/ui** component set re-themed to Booqable's **Boomerang** palette
+  (brand blue #136deb, blue-tinted neutrals, light mode only).
 
 What is pre-wired (keep it working):
 - Iframe session bootstrap: Booqable embeds the app in an iframe with a signed

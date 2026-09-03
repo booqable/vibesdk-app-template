@@ -1,184 +1,58 @@
 # Components
 
-All components are a copy-in library under `assets/starter/components/ui/` and are
-imported through the `@/` alias. They are built on `@base-ui/react` primitives;
-icons come from `lucide-react`. Source paths below are relative to the starter.
-
-## Index
-
-| Component | Import | Source |
-| --- | --- | --- |
-| Button | `@/components/ui/button` | `components/ui/button.tsx` |
-| Input | `@/components/ui/input` | `components/ui/input.tsx` |
-| Textarea | `@/components/ui/textarea` | `components/ui/textarea.tsx` |
-| Label | `@/components/ui/label` | `components/ui/label.tsx` |
-| Checkbox | `@/components/ui/checkbox` | `components/ui/checkbox.tsx` |
-| RadioGroup | `@/components/ui/radio-group` | `components/ui/radio-group.tsx` |
-| Switch | `@/components/ui/switch` | `components/ui/switch.tsx` |
-| Badge | `@/components/ui/badge` | `components/ui/badge.tsx` |
-| Tag | `@/components/ui/tag` | `components/ui/tag.tsx` |
-| Card | `@/components/ui/card` | `components/ui/card.tsx` |
-| Alert | `@/components/ui/alert` | `components/ui/alert.tsx` |
-| Tabs | `@/components/ui/tabs` | `components/ui/tabs.tsx` |
-| Tooltip | `@/components/ui/tooltip` | `components/ui/tooltip.tsx` |
-| Avatar | `@/components/ui/avatar` | `components/ui/avatar.tsx` |
-| Separator | `@/components/ui/separator` | `components/ui/separator.tsx` |
-| BrandLogo | `@/components/brand-logo` | `components/brand-logo.tsx` |
-
-## Button
-
-`variant`: `primary` (default) · `secondary` · `tertiary` · `destructive` ·
-`link` · `link-gray`. **No `ghost`, `outline`, or `default`.**
-`size`: `sm` · `md` (default) · `lg` · `xl`.
-`iconOnly?: boolean` (square icon buttons), `loading?: boolean` (shows a spinner
-and disables). Extends `@base-ui/react` Button props.
+The UI kit is the **standard shadcn/ui** component set (Radix primitives +
+Tailwind + `class-variance-authority`; icons from `lucide-react`), re-themed to
+Booqable's Boomerang palette. Import through the `@/` alias:
 
 ```tsx
-<Button>Create order</Button>
-<Button variant="secondary">Cancel</Button>
-<Button variant="tertiary" size="sm">Details</Button>
-<Button variant="destructive">Delete</Button>
-<Button iconOnly aria-label="Settings"><Settings /></Button>
-<Button loading>Saving</Button>
+import { Button } from '@/components/ui/button'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
+import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 ```
 
-## Input / Textarea / Label
+Use the APIs exactly as documented at **https://ui.shadcn.com** — the theming
+below doesn't change any component's props, only its colors/rounding.
 
-`Input` and `Textarea` wrap the base-ui `Input` / a native `textarea`; pass native
-props (`type`, `placeholder`, `value`, `defaultValue`, `disabled`,
-`aria-invalid`). Focus ring and invalid states are token-driven. Pair with `Label`
-(`htmlFor` → field `id`). Label dims automatically for disabled siblings.
+## Available components
 
-```tsx
-<div className="grid gap-1.5">
-  <Label htmlFor="email">Email address</Label>
-  <Input id="email" type="email" placeholder="jane@acme.com" />
-</div>
-```
+`accordion`, `alert`, `alert-dialog`, `aspect-ratio`, `avatar`, `badge`,
+`breadcrumb`, `button`, `calendar`, `card`, `carousel`, `chart`, `checkbox`,
+`collapsible`, `command`, `context-menu`, `dialog`, `drawer`, `dropdown-menu`,
+`form`, `hover-card`, `input`, `input-otp`, `label`, `menubar`,
+`navigation-menu`, `pagination`, `popover`, `progress`, `radio-group`,
+`resizable`, `scroll-area`, `select`, `separator`, `sheet`, `skeleton`,
+`slider`, `sonner` (toasts), `switch`, `table`, `tabs`, `textarea`,
+`toggle`, `toggle-group`, `tooltip`.
 
-## Checkbox / RadioGroup / Switch
+Plus the Booqable-specific `BrandLogo` (`@/components/brand-logo`).
 
-- `Checkbox` — base-ui Checkbox; use `checked`/`defaultChecked`/`onCheckedChange`,
-  and `indeterminate` for the mixed state.
-- `RadioGroup` + `RadioGroupItem` — set `defaultValue`/`value` on the group and a
-  `value` on each item; wire each item to a `Label` via `id`.
-- `Switch` — base-ui Switch; `checked`/`onCheckedChange`.
+**Not included:** `sidebar` (an embedded Booqable app has no sidebar). There is
+no separate "Tag" — use `Badge`.
 
-```tsx
-<Checkbox id="deposit" defaultChecked />
-<RadioGroup defaultValue="pickup">
-  <div className="flex items-center gap-2.5">
-    <RadioGroupItem value="pickup" id="r-pickup" />
-    <Label htmlFor="r-pickup" className="font-normal">In-store pickup</Label>
-  </div>
-</RadioGroup>
-<Switch checked={notify} onCheckedChange={setNotify} />
-```
+Don't hand-roll primitives (tables, selects, dialogs, dropdowns, toasts) — the
+component exists; import it.
 
-## Badge / Tag
+## Variant conventions (unchanged from shadcn)
 
-`Badge` `variant`: `gray` (default) · `brand` · `success` · `warning` ·
-`destructive`. **No `info` or `neutral`** — use `brand` / `gray`.
-`size`: `sm` · `md` (default) · `lg`. `dot?: boolean` adds a leading status dot.
+- **Button** — `variant`: `default` (brand blue) · `secondary` (quiet grey) ·
+  `outline` · `ghost` · `destructive` · `link`. `size`: `default` · `sm` ·
+  `lg` · `icon`.
+- **Badge** — `variant`: `default` · `secondary` · `destructive` · `outline`.
+- **Alert** — `variant`: `default` · `destructive`.
+- Everything else uses its standard shadcn API.
 
-`Tag` is a square-cornered, removable chip for filters/tokens. Pass `onRemove` to
-render the dismiss button.
+## Booqable theming
 
-```tsx
-<Badge variant="success" dot>Confirmed</Badge>
-<Badge variant="gray">Net 30</Badge>
-<Tag onRemove={() => remove(id)}>Camera kit</Tag>
-```
-
-## Card
-
-Compound: `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`,
-`CardFooter`. Rounded-xl surface with divided header/footer.
-
-```tsx
-<Card>
-  <CardHeader>
-    <CardTitle>New rental order</CardTitle>
-    <CardDescription>Create a reservation.</CardDescription>
-  </CardHeader>
-  <CardContent>…</CardContent>
-  <CardFooter className="justify-end gap-3">
-    <Button variant="secondary">Cancel</Button>
-    <Button>Save</Button>
-  </CardFooter>
-</Card>
-```
-
-## Alert
-
-`variant`: `info` (default) · `success` · `warning` · `destructive`. Compound:
-`Alert`, `AlertIcon`, `AlertContent`, `AlertTitle`, `AlertDescription`. Has
-`role="alert"`; the icon slot is colored per variant.
-
-```tsx
-<Alert variant="info">
-  <AlertIcon><Info /></AlertIcon>
-  <AlertContent>
-    <AlertTitle>Deposit held</AlertTitle>
-    <AlertDescription>A refundable deposit is on file.</AlertDescription>
-  </AlertContent>
-</Alert>
-```
-
-## Tabs
-
-`Tabs`, `TabsList`, `TabsTab`, `TabsIndicator`, `TabsPanel` (base-ui). Set
-`defaultValue`/`value` on `Tabs`; `value` on each `TabsTab` and `TabsPanel`. Add
-`TabsIndicator` **inside** `TabsList` for the animated underline.
-
-```tsx
-<Tabs defaultValue="details">
-  <TabsList>
-    <TabsTab value="details">Details</TabsTab>
-    <TabsTab value="items">Items</TabsTab>
-    <TabsIndicator />
-  </TabsList>
-  <TabsPanel value="details">…</TabsPanel>
-  <TabsPanel value="items">…</TabsPanel>
-</Tabs>
-```
-
-## Tooltip
-
-`TooltipProvider`, `Tooltip`, `TooltipTrigger`, `TooltipContent` (base-ui). Wrap in
-a `TooltipProvider`. To use a design-system component as the trigger, pass it via
-the base-ui `render` prop (do not nest as children, and there is no `content` prop).
-
-```tsx
-<TooltipProvider>
-  <Tooltip>
-    <TooltipTrigger render={<Button variant="tertiary" size="sm">Why?</Button>} />
-    <TooltipContent>Deposit is refundable on return</TooltipContent>
-  </Tooltip>
-</TooltipProvider>
-```
-
-## Avatar / Separator
-
-`Avatar`, `AvatarImage`, `AvatarFallback` (base-ui) — image with a fallback for
-initials. `Separator` — horizontal (default) or `orientation="vertical"` divider.
-
-```tsx
-<Avatar>
-  <AvatarImage src={user.avatar} alt={user.name} />
-  <AvatarFallback>JC</AvatarFallback>
-</Avatar>
-<Separator />
-```
-
-## Common mistakes / never invent
-
-- Don't use `variant="ghost"|"outline"|"default"` on `Button` — it has none.
-  `tertiary` is the low-emphasis variant.
-- Don't use `Badge variant="info"|"neutral"` — use `brand` / `gray`.
-- Don't pass a `content` prop to `Tooltip`; use the compound parts + `render`.
-- Don't hardcode colors, radii, or font sizes — use tokens
-  (see `references/foundations.md`).
-- Don't add variants, sizes, or props that aren't listed here. If a needed
-  variant is missing, extend the component's `cva` config in the starter rather
-  than faking a class on the call site.
+- **Brand colour** is `--primary` (#136deb). `default` buttons, active states,
+  focus rings and links are Booqable blue.
+- **Light mode only.** There is no `.dark` block and no theme provider — never
+  add a dark theme, a theme toggle, or `dark:` variants.
+- **Style through tokens**, never raw values: `bg-primary`,
+  `text-primary-foreground`, `bg-secondary`, `text-muted-foreground`, `bg-card`,
+  `bg-accent`, `border-border`, `rounded-lg`, plus opacity modifiers like
+  `bg-primary/90`. Type scale extras: `text-display-2xl … text-display-xs` for
+  headings; body text uses the standard `text-sm` / `text-base` / `text-lg`.
+- Shared visual changes belong in the token layer (`tailwind.config.js` /
+  `src/index.css`), not per-component overrides.
+- Font is **Mulish** (loaded in `main.tsx`), Booqable's closest free match for
+  Proxima Nova.

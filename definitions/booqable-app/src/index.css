@@ -3,11 +3,15 @@
 @tailwind utilities;
 
 /*
-  Boomerang — Booqable design system (Tailwind v3).
-  Tokens grounded in the Figma library "Boomerang: Booqable design system".
-  Primary brand blue #136deb, blue-tinted neutral scale; palette, radii, type
-  scale and elevation live in tailwind.config.js. The semantic (light-only)
-  values below are consumed there as CSS variables. Booqable is light mode only.
+  Boomerang tokens for shadcn/ui — Booqable design system (Tailwind v3).
+  Grounded in the Figma library "Boomerang: Booqable design system": primary
+  brand blue #136deb on a blue-tinted neutral scale. Booqable is light mode only.
+
+  Values are space-separated RGB channels (not hex) so Tailwind's opacity
+  modifiers work — shadcn components rely on `bg-primary/90`, `bg-background/80`,
+  etc. The channels are consumed in tailwind.config.js as
+  `rgb(var(--token) / <alpha-value>)`.
+
   Proxima Nova is a commercial typeface and cannot be bundled; the runtime font
   stack falls back to Mulish (loaded via @fontsource/mulish) as the closest
   free match.
@@ -15,50 +19,55 @@
 
 :root {
   color-scheme: light;
-  --background: #ffffff;
-  --foreground: #131414;
-  --card: #ffffff;
-  --card-foreground: #131414;
-  --popover: #ffffff;
-  --popover-foreground: #131414;
+  --background: 255 255 255;
+  --foreground: 19 20 20;
+  --card: 255 255 255;
+  --card-foreground: 19 20 20;
+  --popover: 255 255 255;
+  --popover-foreground: 19 20 20;
 
-  --primary: #136deb;
-  --primary-hover: #2466c3;
-  --primary-foreground: #ffffff;
+  --primary: 19 109 235;
+  --primary-hover: 36 102 195;
+  --primary-foreground: 255 255 255;
 
-  --secondary: #ffffff;
-  --secondary-foreground: #394046;
+  /* A light neutral fill for shadcn's `secondary` variant (Booqable secondary
+     controls are quiet grey, not white). */
+  --secondary: 240 244 248;
+  --secondary-foreground: 57 64 70;
 
-  --muted: #f0f4f8;
-  --muted-foreground: #5c6670;
+  --muted: 240 244 248;
+  --muted-foreground: 92 102 112;
 
-  --accent: #f0f4f8;
-  --accent-foreground: #394046;
+  --accent: 240 244 248;
+  --accent-foreground: 57 64 70;
 
-  --destructive: #e51c2c;
-  --destructive-hover: #c1000f;
-  --destructive-foreground: #ffffff;
-  --destructive-subtle: #ffe5e8;
+  --destructive: 229 28 44;
+  --destructive-hover: 193 0 15;
+  --destructive-foreground: 255 255 255;
+  --destructive-subtle: 255 229 232;
 
-  --success: #40a14f;
-  --success-foreground: #1f772c;
-  --success-subtle: #e8ffeb;
+  --success: 64 161 79;
+  --success-foreground: 31 119 44;
+  --success-subtle: 232 255 235;
 
-  --warning: #e08700;
-  --warning-foreground: #9e6510;
-  --warning-subtle: #fff2de;
+  --warning: 224 135 0;
+  --warning-foreground: 158 101 16;
+  --warning-subtle: 255 242 222;
 
-  --border: #e2e9f0;
-  --border-strong: #b4bfcb;
-  --input: #cfd9e2;
-  --ring: #5a9fff;
-  --link: #2466c3;
+  --border: 226 233 240;
+  --border-strong: 180 191 203;
+  --input: 207 217 226;
+  --ring: 90 159 255;
+  --link: 36 102 195;
 
-  --chart-1: #136deb;
-  --chart-2: #5a9fff;
-  --chart-3: #40a14f;
-  --chart-4: #e08700;
-  --chart-5: #874fff;
+  --chart-1: 19 109 235;
+  --chart-2: 90 159 255;
+  --chart-3: 64 161 79;
+  --chart-4: 224 135 0;
+  --chart-5: 135 79 255;
+
+  /* Control/card corner radius (shadcn reads --radius for rounded-lg/md/sm). */
+  --radius: 0.5rem;
 }
 
 /* Booqable only supports light mode — there is deliberately no `.dark` block. */
@@ -66,7 +75,7 @@
 @layer base {
   * {
     @apply border-border;
-    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+    outline-color: rgb(var(--ring) / 0.5);
   }
   body {
     @apply bg-background text-foreground;

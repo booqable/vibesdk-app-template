@@ -20,19 +20,28 @@ Booqable account through its JSON:API.
 - `docs/boomerang/` — the design system reference (foundations, components,
   brand assets). Read it before building UI.
 
-## Boomerang design system (MUST follow)
+## Design system — shadcn/ui, themed to Booqable (MUST follow)
 
-- Import components from `@/components/ui/*` (button, input, textarea, label,
-  checkbox, radio-group, switch, badge, tag, card, alert, tabs, tooltip, avatar,
-  separator). **That list is complete** — there is no table, select, dialog,
-  dropdown or toast component. Build those from plain elements styled with the
-  tokens (e.g. a `<table>` with `border-border`, `text-sm`, `text-fg-muted`
-  headers) instead of importing components that don't exist. Brand assets: `@/components/brand-logo`.
-- **Use tokens, never raw values.** The palette, radii, type scale and
-  elevation live in `tailwind.config.js`; the semantic values are CSS variables
-  in `src/index.css`. Use classes that map to them (`bg-primary`,
-  `text-muted-foreground`, `text-fg-muted`, `rounded-xl`, `text-display-md`,
-  `shadow-md`) — no hex codes or pixel values.
+- The UI kit is the **standard shadcn/ui** set, re-themed to Booqable's
+  Boomerang palette via tokens. Import from `@/components/ui/*` and use the
+  normal shadcn APIs you already know — e.g. `Button` variants are
+  `default` (brand blue) · `secondary` · `outline` · `ghost` · `destructive` ·
+  `link`. The **full** set is available: button, input, textarea, label,
+  checkbox, radio-group, switch, select, slider, toggle, toggle-group, badge,
+  card, alert, alert-dialog, dialog, sheet, drawer, popover, hover-card,
+  tooltip, dropdown-menu, context-menu, menubar, navigation-menu, command,
+  tabs, accordion, collapsible, table, calendar, form, breadcrumb, pagination,
+  avatar, progress, skeleton, separator, scroll-area, aspect-ratio, resizable,
+  carousel, chart (recharts), input-otp, and toasts via `sonner`. **Do not
+  hand-roll tables/selects/dialogs** — import the component. (No `sidebar` — an
+  embedded app has no sidebar. Brand mark: `@/components/brand-logo`.)
+- **Use tokens, never raw values.** Semantic colors are CSS variables in
+  `src/index.css` (RGB channels) surfaced as Tailwind utilities in
+  `tailwind.config.js`. Use the shadcn token classes — `bg-primary`,
+  `text-primary-foreground`, `bg-secondary`, `text-muted-foreground`,
+  `bg-card`, `border-border`, `bg-accent`, `rounded-lg`, `text-display-md`,
+  `shadow-md`, and opacity modifiers like `bg-primary/90` — no hex codes or
+  pixel values.
 - **Light mode only.** Booqable only supports light mode. Do NOT add a dark
   theme, a theme toggle, or `dark:` utility variants; there is no `.dark` token
   set and no theme provider.

@@ -15,7 +15,7 @@ export function HomePage() {
   }, [])
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg px-6 py-16 text-center text-fg">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 py-16 text-center text-foreground">
       <img
         src="/booqable/app-setup-loading.svg"
         alt=""
@@ -24,13 +24,13 @@ export function HomePage() {
       />
       <div className="flex max-w-md flex-col gap-2">
         <h1 className="text-display-xs font-semibold">Bo is building your app</h1>
-        <p className="text-md text-fg-muted">
+        <p className="text-base text-muted-foreground">
           The first version of your app will appear here as soon as it's generated.
           Keep an eye on the chat for progress.
         </p>
       </div>
       {status !== null && !status.connected && (
-        <p className="text-sm text-fg-subtle">
+        <p className="text-sm text-muted-foreground">
           Tip: open this app from your Booqable back office to connect it to your account.
         </p>
       )}

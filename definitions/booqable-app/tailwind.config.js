@@ -1,9 +1,14 @@
 /**
- * Boomerang — Booqable design system (Tailwind v3 port).
- * Palette hex values and scales come from the Figma library
- * "Boomerang: Booqable design system"; semantic colors map to the CSS
- * variables defined in src/index.css (:root). Booqable is light mode only.
+ * Boomerang theme for shadcn/ui (Tailwind v3). Booqable's design system: brand
+ * blue #136deb on a blue-tinted neutral scale, light mode only.
+ *
+ * Semantic colors map to the RGB-channel CSS variables in src/index.css via
+ * `rgb(var(--token) / <alpha-value>)`, so shadcn's opacity modifiers
+ * (`bg-primary/90`, `bg-background/80`, …) resolve correctly. The raw `brand`
+ * and `gray` scales are hex literals for when you need a specific step.
  */
+const channel = (name) => `rgb(var(${name}) / <alpha-value>)`
+
 export default {
   // Light mode only. Kept as 'class' (never applied) rather than the Tailwind
   // default of 'media', so any stray `dark:` utility stays inert instead of
@@ -26,38 +31,36 @@ export default {
           300: '#b4bfcb', 400: '#9ba6b1', 500: '#737f8c', 600: '#5c6670',
           700: '#394046', 800: '#2e3338', 900: '#131414',
         },
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
-        bg: 'var(--background)',
-        fg: 'var(--foreground)',
-        'fg-muted': 'var(--muted-foreground)',
-        'fg-subtle': '#9ba6b1',
-        surface: 'var(--card)',
-        card: { DEFAULT: 'var(--card)', foreground: 'var(--card-foreground)' },
-        popover: { DEFAULT: 'var(--popover)', foreground: 'var(--popover-foreground)' },
-        primary: { DEFAULT: 'var(--primary)', hover: 'var(--primary-hover)', foreground: 'var(--primary-foreground)' },
-        secondary: { DEFAULT: 'var(--secondary)', foreground: 'var(--secondary-foreground)' },
-        muted: { DEFAULT: 'var(--muted)', foreground: 'var(--muted-foreground)' },
-        accent: { DEFAULT: 'var(--accent)', foreground: 'var(--accent-foreground)' },
+        background: channel('--background'),
+        foreground: channel('--foreground'),
+        card: { DEFAULT: channel('--card'), foreground: channel('--card-foreground') },
+        popover: { DEFAULT: channel('--popover'), foreground: channel('--popover-foreground') },
+        primary: { DEFAULT: channel('--primary'), hover: channel('--primary-hover'), foreground: channel('--primary-foreground') },
+        secondary: { DEFAULT: channel('--secondary'), foreground: channel('--secondary-foreground') },
+        muted: { DEFAULT: channel('--muted'), foreground: channel('--muted-foreground') },
+        accent: { DEFAULT: channel('--accent'), foreground: channel('--accent-foreground') },
         destructive: {
-          DEFAULT: 'var(--destructive)', hover: 'var(--destructive-hover)',
-          foreground: 'var(--destructive-foreground)', subtle: 'var(--destructive-subtle)',
+          DEFAULT: channel('--destructive'), hover: channel('--destructive-hover'),
+          foreground: channel('--destructive-foreground'), subtle: channel('--destructive-subtle'),
         },
-        success: { DEFAULT: 'var(--success)', foreground: 'var(--success-foreground)', subtle: 'var(--success-subtle)' },
-        warning: { DEFAULT: 'var(--warning)', foreground: 'var(--warning-foreground)', subtle: 'var(--warning-subtle)' },
-        border: 'var(--border)',
-        'border-strong': 'var(--border-strong)',
-        input: 'var(--input)',
-        ring: 'var(--ring)',
-        link: 'var(--link)',
+        success: { DEFAULT: channel('--success'), foreground: channel('--success-foreground'), subtle: channel('--success-subtle') },
+        warning: { DEFAULT: channel('--warning'), foreground: channel('--warning-foreground'), subtle: channel('--warning-subtle') },
+        border: { DEFAULT: channel('--border'), strong: channel('--border-strong') },
+        input: channel('--input'),
+        ring: channel('--ring'),
+        link: channel('--link'),
         chart: {
-          1: 'var(--chart-1)', 2: 'var(--chart-2)', 3: 'var(--chart-3)',
-          4: 'var(--chart-4)', 5: 'var(--chart-5)',
+          1: channel('--chart-1'), 2: channel('--chart-2'), 3: channel('--chart-3'),
+          4: channel('--chart-4'), 5: channel('--chart-5'),
         },
       },
-      /* Radii — Figma: 8 (controls), 12 (cards), 20 (sections) */
+      /* Radii — Figma: 8 (controls), 12 (cards), 20 (sections). shadcn maps
+         lg/md/sm off --radius so its components inherit the Booqable rounding. */
       borderRadius: {
-        sm: '6px', md: '8px', lg: '8px', xl: '12px', '2xl': '16px', '3xl': '20px',
+        sm: 'calc(var(--radius) - 2px)',
+        md: 'calc(var(--radius) - 1px)',
+        lg: 'var(--radius)',
+        xl: '12px', '2xl': '16px', '3xl': '20px',
       },
       /* Type scale — Proxima Nova specimen from Figma (Mulish fallback) */
       fontSize: {
@@ -67,11 +70,6 @@ export default {
         'display-md': ['2.25rem', { lineHeight: '2.75rem', letterSpacing: '-0.02em' }],
         'display-sm': ['1.875rem', { lineHeight: '2.375rem' }],
         'display-xs': ['1.5rem', { lineHeight: '2rem' }],
-        xl: ['1.25rem', { lineHeight: '1.875rem' }],
-        lg: ['1.125rem', { lineHeight: '1.75rem' }],
-        md: ['1rem', { lineHeight: '1.5rem' }],
-        sm: ['0.875rem', { lineHeight: '1.25rem' }],
-        xs: ['0.75rem', { lineHeight: '1.125rem' }],
       },
       /* Elevation — Figma button/card shadows */
       boxShadow: {
