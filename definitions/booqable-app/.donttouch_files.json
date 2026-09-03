@@ -1,0 +1,16 @@
+[
+    "wrangler.jsonc",
+    "wrangler.toml",
+    "package.json",
+    ".redacted_files.json",
+    ".donttouch_files.json",
+    ".important_files.json",
+    "vite.config.ts",
+    "worker/index.ts",
+    "worker/core-utils.ts",
+    "src/lib/errorReporter.ts",
+    "src/components/ErrorBoundary.tsx",
+    "src/components/RouteErrorBoundary.tsx",
+    "src/lib/booqable.ts",
+    "src/lib/booqable/"
+]
