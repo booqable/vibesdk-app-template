@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 /*
   Booqable brand lockup. Uses the real logomark + wordmark SVGs exported from
   the Boomerang Figma library (public/brand). Both marks are monochrome
-  (#131314), so they are inverted to white in dark mode.
+  (#131314) — Booqable is light mode only, so no inversion is needed.
 */
 export function BrandLogo({
   className,
@@ -18,7 +18,7 @@ export function BrandLogo({
       <img
         src="/brand/logomark.svg"
         alt="Booqable"
-        className="h-full w-auto dark:invert"
+        className="h-full w-auto"
       />
       {showWordmark && (
         // eslint-disable-next-line @next/next/no-img-element
@@ -26,7 +26,7 @@ export function BrandLogo({
           src="/brand/wordmark.svg"
           alt=""
           aria-hidden="true"
-          className="h-[72%] w-auto dark:invert"
+          className="h-[72%] w-auto"
         />
       )}
     </span>

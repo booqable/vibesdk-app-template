@@ -2,9 +2,12 @@
  * Boomerang — Booqable design system (Tailwind v3 port).
  * Palette hex values and scales come from the Figma library
  * "Boomerang: Booqable design system"; semantic colors map to the CSS
- * variables defined in src/index.css (:root / .dark).
+ * variables defined in src/index.css (:root). Booqable is light mode only.
  */
 export default {
+  // Light mode only. Kept as 'class' (never applied) rather than the Tailwind
+  // default of 'media', so any stray `dark:` utility stays inert instead of
+  // activating on the OS colour-scheme preference.
   darkMode: ['class'],
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {

@@ -27,15 +27,15 @@ Booqable account through its JSON:API.
   separator). **That list is complete** — there is no table, select, dialog,
   dropdown or toast component. Build those from plain elements styled with the
   tokens (e.g. a `<table>` with `border-border`, `text-sm`, `text-fg-muted`
-  headers) instead of importing components that don't exist. Brand assets: `@/components/brand-logo`; theming:
-  `@/components/theme-provider` and `@/components/theme-toggle`.
+  headers) instead of importing components that don't exist. Brand assets: `@/components/brand-logo`.
 - **Use tokens, never raw values.** The palette, radii, type scale and
-  elevation live in `tailwind.config.js`; the semantic light/dark values are
-  CSS variables in `src/index.css`. Use classes that map to them
-  (`bg-primary`, `text-muted-foreground`, `text-fg-muted`, `rounded-xl`,
-  `text-display-md`, `shadow-md`) — no hex codes or pixel values.
-- **Support light and dark.** Keep `ThemeProvider` mounted (see `src/main.tsx`)
-  and use semantic tokens so both themes work; never hardcode one mode's color.
+  elevation live in `tailwind.config.js`; the semantic values are CSS variables
+  in `src/index.css`. Use classes that map to them (`bg-primary`,
+  `text-muted-foreground`, `text-fg-muted`, `rounded-xl`, `text-display-md`,
+  `shadow-md`) — no hex codes or pixel values.
+- **Light mode only.** Booqable only supports light mode. Do NOT add a dark
+  theme, a theme toggle, or `dark:` utility variants; there is no `.dark` token
+  set and no theme provider.
 - **Extend, don't fork**: shared style changes belong in the token layer
   (`tailwind.config.js` / the CSS variables in `src/index.css`), not per-page
   overrides.

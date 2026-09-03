@@ -21,7 +21,6 @@ export function HomePage() {
         alt=""
         width={280}
         height={160}
-        className="dark:opacity-90"
       />
       <div className="flex max-w-md flex-col gap-2">
         <h1 className="text-display-xs font-semibold">Bo is building your app</h1>

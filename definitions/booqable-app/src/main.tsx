@@ -10,7 +10,6 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
-import { ThemeProvider } from '@/components/theme-provider';
 import '@fontsource/mulish/400.css'
 import '@fontsource/mulish/600.css'
 import '@fontsource/mulish/700.css'
@@ -31,9 +30,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
-        <ThemeProvider>
-          <RouterProvider router={router} />
-        </ThemeProvider>
+        <RouterProvider router={router} />
       </ErrorBoundary>
     </QueryClientProvider>
   </StrictMode>,

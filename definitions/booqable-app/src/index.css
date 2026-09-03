@@ -6,8 +6,8 @@
   Boomerang — Booqable design system (Tailwind v3).
   Tokens grounded in the Figma library "Boomerang: Booqable design system".
   Primary brand blue #136deb, blue-tinted neutral scale; palette, radii, type
-  scale and elevation live in tailwind.config.js. The semantic light/dark
-  values below are consumed there as CSS variables.
+  scale and elevation live in tailwind.config.js. The semantic (light-only)
+  values below are consumed there as CSS variables. Booqable is light mode only.
   Proxima Nova is a commercial typeface and cannot be bundled; the runtime font
   stack falls back to Mulish (loaded via @fontsource/mulish) as the closest
   free match.
@@ -61,54 +61,7 @@
   --chart-5: #874fff;
 }
 
-.dark {
-  color-scheme: dark;
-  /* Dark neutrals grounded in Figma dark gray tokens (#0c0e12..#2e3338). [VERIFY] */
-  --background: #0c0e12;
-  --foreground: #f0f4f8;
-  --card: #13161b;
-  --card-foreground: #f0f4f8;
-  --popover: #13161b;
-  --popover-foreground: #f0f4f8;
-
-  --primary: #136deb;
-  --primary-hover: #5a9fff;
-  --primary-foreground: #ffffff;
-
-  --secondary: #1a1e24;
-  --secondary-foreground: #e2e9f0;
-
-  --muted: #1a1e24;
-  --muted-foreground: #9ba6b1;
-
-  --accent: #22262f;
-  --accent-foreground: #f0f4f8;
-
-  --destructive: #ff4252;
-  --destructive-hover: #e51c2c;
-  --destructive-foreground: #ffffff;
-  --destructive-subtle: #4c2a2d;
-
-  --success: #62da7c;
-  --success-foreground: #96ffad;
-  --success-subtle: #2d4030;
-
-  --warning: #ffb442;
-  --warning-foreground: #ffcf86;
-  --warning-subtle: #684e27;
-
-  --border: #2e3338;
-  --border-strong: #394046;
-  --input: #2e3338;
-  --ring: #5a9fff;
-  --link: #86c2ff;
-
-  --chart-1: #5a9fff;
-  --chart-2: #136deb;
-  --chart-3: #62da7c;
-  --chart-4: #ffb442;
-  --chart-5: #d6bbfb;
-}
+/* Booqable only supports light mode — there is deliberately no `.dark` block. */
 
 @layer base {
   * {
