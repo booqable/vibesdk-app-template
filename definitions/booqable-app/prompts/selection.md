@@ -16,9 +16,10 @@ What is pre-wired (keep it working):
   `?token=` — the starter verifies it server-side and starts a session. Auth is
   header-based (a session handle kept in memory), not cookies, because the
   cross-site iframe blocks third-party cookie storage.
-- An authenticated proxy to the Booqable JSON:API: the frontend calls
-  `booqableApi('/orders?...')` and the worker forwards it with the session's
-  access token.
+- An authenticated proxy to the Booqable JSON:API: the frontend calls the
+  bundled `booqable` client (`booqable.orders.list(...)` — JSON:API responses
+  come back deserialized) or `booqableApi('/orders?...')` for raw documents,
+  and the worker forwards the request with the session's access token.
 
 Prefer another template when:
 - The user wants a general-purpose website or an app unrelated to Booqable.

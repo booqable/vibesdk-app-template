@@ -15,8 +15,10 @@ Booqable account through its JSON:API.
   module`. Keep helpers inline here; the only safe local import is the type-only
   `Env` from `./core-utils`. **Never modify `worker/index.ts` or `worker/core-utils.ts`,
   and never add extra files under `worker/`.**
-- `src/lib/booqable.ts` — frontend helpers (`initBooqableSession`,
-  `getBooqableStatus`, `booqableApi`).
+- `src/lib/booqable.ts` — the `booqable` API client plus frontend helpers
+  (`initBooqableSession`, `getBooqableStatus`, `booqableApi`).
+- `src/lib/booqable/` — the vendored `@booqable/client` library the client is
+  built on. **Never edit or delete files in this directory.**
 - `docs/boomerang/` — the design system reference (foundations, components,
   brand assets). Read it before building UI.
 
@@ -69,10 +71,44 @@ Flow (already wired — keep it):
    an opaque session handle; the frontend keeps it in memory and sends it as
    `Authorization: Bearer <handle>` on later calls. No cookies are used (the
    cross-site iframe blocks third-party cookie storage).
-3. The frontend reaches the Booqable API through the authenticated proxy:
+3. The frontend reaches the Booqable API through the authenticated proxy via
+   the **`booqable` client** (preferred) or `booqableApi()` for raw documents.
+   Both attach the session header and renew the session once on 401.
+
+```typescript
+import { booqable } from '@/lib/booqable';
+
+// Records come back deserialized: attributes flattened onto the record,
+// included relationships populated, *_at/*_on fields parsed into Date objects.
+const orders = await booqable.orders.list({
+    include: 'customer',
+    filter: { status: 'reserved' },
+    sort: '-created_at',
+    page: { size: 5 }
+});
+orders[0].number
+orders[0].customer.name
+
+const order = await booqable.orders.find(id, { include: 'customer' });
+const customer = await booqable.customers.create({ name: 'Jane', email: 'jane@x.com' });
+await booqable.customers.update(customer.id, { name: 'Jane Doe' });
+await booqable.customers.delete(customer.id);
+```
+
+   Every JSON:API resource is available the same way (`booqable.products`,
+   `booqable.plannings`, `booqable.stock_items`, …). Failures throw typed
+   errors importable from `@/lib/booqable/index.js` (`NotFound`,
+   `UnprocessableEntity`, `Unauthorized`, … all subclasses of `BooqableError`,
+   with `.errors` carrying JSON:API validation details). **Reading an attribute
+   that is absent from the payload throws `MissingAttribute`** — typos fail
+   loudly; attributes present with a null value return null, and
+   `'key' in record` probes safely. When the app has no Booqable session
+   (e.g. the disconnected screenshot state), calls throw `Unauthorized` — gate
+   data fetching on `getBooqableStatus()`.
+
+   For raw JSON:API documents or custom request bodies there is still
    `booqableApi('/orders?page[size]=5&sort=-created_at')` →
    `GET /api/booqable/proxy/orders?…` → `{api_host}/api/4/orders?…`.
-   Sessions are short-lived; `booqableApi` renews once automatically on 401.
 
 `GET /api/booqable/status` reports `{connected, company, user_email, currency}` —
 use it to render helpful empty states (see the starter `HomePage.tsx`).
@@ -106,7 +142,9 @@ frontend or log them.
 ## Rules
 
 - Keep the session bootstrap (`initBooqableSession()` on app load) in place, and
-  always reach the API through `booqableApi()` so the session header is attached.
+  always reach the API through the `booqable` client (or `booqableApi()`) so the
+  session header is attached. Never edit the vendored `src/lib/booqable/`
+  directory.
 - Keep the routes `/api/booqable/session`, `/api/booqable/status`,
   `/api/oauth/callback`, and `/api/booqable/proxy/*` intact, and keep auth
   header-based — never add cookies (the cross-site iframe blocks them).
