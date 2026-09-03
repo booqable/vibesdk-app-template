@@ -1,11 +1,12 @@
 [
-    "wrangler.jsonc",
+    "wrangler.json",
     "wrangler.toml",
     "package.json",
     ".redacted_files.json",
     ".donttouch_files.json",
     ".important_files.json",
     "vite.config.ts",
+    "index.html",
     "worker/index.ts",
     "worker/core-utils.ts",
     "src/lib/errorReporter.ts",
