@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { Env } from './core-utils';
 
 // -----------------------------------------------------------------------------
@@ -11,6 +10,12 @@ import { Env } from './core-utils';
 // bundled and the deployed worker would fail with `No such module`. Keep every
 // helper below inline — only the type-only `Env` import above is safe (types
 // are erased at build time). Add your own routes at the bottom.
+//
+// Auth is header-based, not cookie-based: the app renders inside a cross-site
+// Booqable iframe, where browsers block third-party cookie storage. The session
+// exchange returns an opaque session handle; the frontend keeps it in memory
+// (see `src/lib/booqable.ts`) and sends it as `Authorization: Bearer <handle>`
+// on same-origin calls to this worker. Do NOT reintroduce cookies.
 // -----------------------------------------------------------------------------
 
 export interface BooqableSession {
@@ -98,20 +103,29 @@ async function booqableRequest(session: BooqableSession, path: string, init: Req
     });
 }
 
-const SESSION_COOKIE = 'bq_session';
+// The session handle is the session object, base64-encoded. It is opaque to the
+// frontend (which only echoes it back) and readable only by this worker.
+function encodeSession(session: BooqableSession): string {
+    return btoa(JSON.stringify(session));
+}
 
-// The app renders inside a Booqable back-office iframe → third-party cookie.
-const COOKIE_OPTIONS = { httpOnly: true, secure: true, sameSite: 'None', path: '/' } as const;
-
-function readSession(c: any): BooqableSession | null {
-    const raw = getCookie(c, SESSION_COOKIE);
-    if (!raw) return null;
-
+function decodeSession(handle: string): BooqableSession | null {
     try {
-        return JSON.parse(atob(raw)) as BooqableSession;
+        return JSON.parse(atob(handle)) as BooqableSession;
     } catch {
         return null;
     }
+}
+
+// Reads the session from the `Authorization: Bearer <handle>` header the
+// frontend attaches after the exchange.
+function readSession(c: any): BooqableSession | null {
+    const header = c.req.header('Authorization') ?? '';
+    const handle = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+    if (!handle) return null;
+
+    const session = decodeSession(handle);
+    return session && !sessionExpired(session) ? session : null;
 }
 
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
@@ -121,12 +135,11 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     // Connection state for the frontend.
     app.get('/api/booqable/status', async (c) => {
         const session = readSession(c);
-        const live = session !== null && !sessionExpired(session);
 
         return c.json({
             success: true,
             data: {
-                connected: live,
+                connected: session !== null,
                 company: session?.slug ?? null,
                 user_email: session?.user_email ?? null,
                 currency: session?.currency ?? null
@@ -136,7 +149,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
     // Called by the frontend on load with the `token` query param Booqable
     // appends to the iframe URL. Booqable verifies it and returns short-lived
-    // API credentials, stored in an HttpOnly cookie.
+    // API credentials; the frontend stores the returned `session` handle in
+    // memory and sends it back as a Bearer token on subsequent calls.
     app.post('/api/booqable/session', async (c) => {
         const { token } = await c.req.json<{ token?: string }>().catch(() => ({ token: undefined }));
         if (!token) return c.json({ success: false, error: 'token is required' }, 400);
@@ -144,8 +158,15 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         const session = await exchangeIframeToken(token);
         if (!session) return c.json({ success: false, error: 'invalid token' }, 401);
 
-        setCookie(c, SESSION_COOKIE, btoa(JSON.stringify(session)), COOKIE_OPTIONS);
-        return c.json({ success: true, data: { company: session.slug, user_email: session.user_email, currency: session.currency } });
+        return c.json({
+            success: true,
+            data: {
+                session: encodeSession(session),
+                company: session.slug,
+                user_email: session.user_email,
+                currency: session.currency
+            }
+        });
     });
 
     // Registered OAuth redirect target (unused by the session flow — kept so
@@ -153,13 +174,11 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     app.get('/api/oauth/callback', (c) => c.redirect('/'));
 
     // Authenticated passthrough to the Booqable JSON:API (`/api/4/...`).
-    // The frontend calls e.g. GET /api/booqable/proxy/orders?page[size]=5.
+    // The frontend calls e.g. GET /api/booqable/proxy/orders?page[size]=5 with
+    // the session handle as a Bearer token.
     app.all('/api/booqable/proxy/*', async (c) => {
         const session = readSession(c);
-        if (!session || sessionExpired(session)) {
-            deleteCookie(c, SESSION_COOKIE, { path: '/' });
-            return c.json({ success: false, error: 'session expired' }, 401);
-        }
+        if (!session) return c.json({ success: false, error: 'session expired' }, 401);
 
         const url = new URL(c.req.url);
         const path = url.pathname.replace('/api/booqable/proxy', '') + url.search;
@@ -167,10 +186,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
             method: c.req.method,
             body: ['GET', 'HEAD'].includes(c.req.method) ? undefined : await c.req.raw.clone().text()
         });
-
-        if (response.status === 401) {
-            deleteCookie(c, SESSION_COOKIE, { path: '/' });
-        }
 
         return new Response(response.body, {
             status: response.status,

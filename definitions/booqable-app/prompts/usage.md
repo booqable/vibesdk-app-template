@@ -56,7 +56,10 @@ Flow (already wired — keep it):
 2. The worker exchanges it at Booqable's session endpoint
    (`POST {api_host}/api/app_builder/sessions`) — Booqable verifies the
    signature and returns a short-lived API access token plus the company
-   identity (slug, user email, currency context), stored in an HttpOnly cookie.
+   identity (slug, user email, currency context). The worker hands the frontend
+   an opaque session handle; the frontend keeps it in memory and sends it as
+   `Authorization: Bearer <handle>` on later calls. No cookies are used (the
+   cross-site iframe blocks third-party cookie storage).
 3. The frontend reaches the Booqable API through the authenticated proxy:
    `booqableApi('/orders?page[size]=5&sort=-created_at')` →
    `GET /api/booqable/proxy/orders?…` → `{api_host}/api/4/orders?…`.
@@ -93,9 +96,11 @@ frontend or log them.
 
 ## Rules
 
-- Keep the session bootstrap (`initBooqableSession()` on app load) in place.
+- Keep the session bootstrap (`initBooqableSession()` on app load) in place, and
+  always reach the API through `booqableApi()` so the session header is attached.
 - Keep the routes `/api/booqable/session`, `/api/booqable/status`,
-  `/api/oauth/callback`, and `/api/booqable/proxy/*` intact.
+  `/api/oauth/callback`, and `/api/booqable/proxy/*` intact, and keep auth
+  header-based — never add cookies (the cross-site iframe blocks them).
 - Never store or log the iframe token or access tokens anywhere else.
 - Build the user's requested app in `src/` — the starter `HomePage.tsx` is a
   "Bo is building your app" placeholder; replace it with the requested app

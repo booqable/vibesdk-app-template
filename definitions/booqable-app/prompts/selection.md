@@ -13,11 +13,12 @@ Use this template when the user wants:
 
 What is pre-wired (keep it working):
 - Iframe session bootstrap: Booqable embeds the app in an iframe with a signed
-  `?token=` — the starter verifies it server-side and starts a session.
-- OAuth: `/api/oauth/callback` exchanges Booqable's authorization code and
-  stores tokens in a signed cookie.
+  `?token=` — the starter verifies it server-side and starts a session. Auth is
+  header-based (a session handle kept in memory), not cookies, because the
+  cross-site iframe blocks third-party cookie storage.
 - An authenticated proxy to the Booqable JSON:API: the frontend calls
-  `booqableApi('/orders?...')` and the worker forwards it with the OAuth token.
+  `booqableApi('/orders?...')` and the worker forwards it with the session's
+  access token.
 
 Prefer another template when:
 - The user wants a general-purpose website or an app unrelated to Booqable.
