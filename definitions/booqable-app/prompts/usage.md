@@ -7,10 +7,14 @@ Booqable account through its JSON:API.
 ## Project structure
 
 - `src/` — React frontend using **Boomerang**, Booqable's design system.
-- `worker/userRoutes.ts` — Hono routes. The Booqable wiring lives here; add new
-  API routes below it. **Never modify `worker/index.ts` or `worker/core-utils.ts`.**
-- `worker/booqable/` — Booqable integration internals (JWT verification, OAuth
-  token exchange/refresh, API client). Treat as a library: use it, don't rewrite it.
+- `worker/userRoutes.ts` — Hono routes **and** the Booqable integration
+  (iframe-token exchange, session cookie, JSON:API proxy). Add new API routes
+  below the existing ones. This file must stay **self-contained**: the platform
+  loads it via a dynamic import, so it ships as a standalone worker module — a
+  runtime `import` of any other local file breaks the deploy with `No such
+  module`. Keep helpers inline here; the only safe local import is the type-only
+  `Env` from `./core-utils`. **Never modify `worker/index.ts` or `worker/core-utils.ts`,
+  and never add extra files under `worker/`.**
 - `src/lib/booqable.ts` — frontend helpers (`initBooqableSession`,
   `getBooqableStatus`, `booqableApi`).
 - `docs/boomerang/` — the design system reference (foundations, components,
