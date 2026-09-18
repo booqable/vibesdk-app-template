@@ -14,6 +14,7 @@ import '@fontsource/mulish/400.css'
 import '@fontsource/mulish/600.css'
 import '@fontsource/mulish/700.css'
 import '@/index.css'
+import { Toaster } from '@/components/ui/sonner'
 import { HomePage } from '@/pages/HomePage'
 
 const queryClient = new QueryClient();
@@ -31,6 +32,8 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
         <RouterProvider router={router} />
+        {/* Renders flash() feedback when the app runs outside the back office. Keep it. */}
+        <Toaster richColors closeButton />
       </ErrorBoundary>
     </QueryClientProvider>
   </StrictMode>,

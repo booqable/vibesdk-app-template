@@ -34,8 +34,9 @@ Booqable account through its JSON:API.
   tooltip, dropdown-menu, context-menu, menubar, navigation-menu, command,
   tabs, accordion, collapsible, table, calendar, form, breadcrumb, pagination,
   avatar, progress, skeleton, separator, scroll-area, aspect-ratio, resizable,
-  carousel, chart (recharts), input-otp, and toasts via `sonner`. **Do not
-  hand-roll tables/selects/dialogs** — import the component. (No `sidebar` — an
+  carousel, chart (recharts), input-otp. **Do not hand-roll
+  tables/selects/dialogs** — import the component. For toasts see
+  `flash()` below; don't call `sonner` directly. (No `sidebar` — an
   embedded app has no sidebar. Brand mark: `@/components/brand-logo`.)
 - **Use tokens, never raw values.** Semantic colors are CSS variables in
   `src/index.css` (RGB channels) surfaced as Tailwind utilities in
@@ -113,6 +114,31 @@ await booqable.customers.delete(customer.id);
 `GET /api/booqable/status` reports `{connected, company, user_email, currency}` —
 use it to render helpful empty states (see the starter `HomePage.tsx`).
 
+## Feedback after actions — `flash()` (MUST use)
+
+Report the outcome of every write (create/update/delete, sending something,
+importing) with `flash(type, message)` from `@/lib/booqable`, where `type` is
+`'success'` or `'error'`. It shows the same toast the rest of Booqable uses:
+inside the back office the message is handed to the host page and rendered
+above the app; standalone it falls back to the local `<Toaster />` mounted in
+`src/main.tsx` (keep that mount).
+
+```typescript
+import { booqable, flash } from '@/lib/booqable';
+import { BooqableError } from '@/lib/booqable/index.js';
+
+try {
+    await booqable.orders.update(order.id, { tag_list: ['priority'] });
+    flash('success', 'Order marked as priority');
+} catch (error) {
+    flash('error', error instanceof BooqableError ? error.message : 'Could not update the order');
+}
+```
+
+Never render your own toasts (no direct `sonner`/`toast()` calls, no custom
+notification components). Inline validation messages next to a field are fine;
+outcomes of actions go through `flash()`.
+
 **Important — automated screenshots have no Booqable session.** The build
 system inspects the app with a headless browser that opens the preview URL
 without the iframe token, so `connected` is false there. Every screen must
@@ -145,6 +171,8 @@ frontend or log them.
   always reach the API through the `booqable` client (or `booqableApi()`) so the
   session header is attached. Never edit the vendored `src/lib/booqable/`
   directory.
+- Report action outcomes with `flash()`; never call `sonner` directly or build
+  notification UI. Keep the `<Toaster />` mount in `src/main.tsx`.
 - Keep the routes `/api/booqable/session`, `/api/booqable/status`,
   `/api/oauth/callback`, and `/api/booqable/proxy/*` intact, and keep auth
   header-based — never add cookies (the cross-site iframe blocks them).
