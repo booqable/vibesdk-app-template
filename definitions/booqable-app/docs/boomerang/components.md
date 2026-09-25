@@ -21,7 +21,8 @@ below doesn't change any component's props, only its colors/rounding.
 `form`, `hover-card`, `input`, `input-otp`, `label`, `menubar`,
 `navigation-menu`, `pagination`, `popover`, `progress`, `radio-group`,
 `resizable`, `scroll-area`, `select`, `separator`, `sheet`, `skeleton`,
-`slider`, `sonner` (toasts), `switch`, `table`, `tabs`, `textarea`,
+`slider`, `sonner` (mounted once in `main.tsx`; use `flash()` for toasts),
+`switch`, `table`, `tabs`, `textarea`,
 `toggle`, `toggle-group`, `tooltip`.
 
 Plus the Booqable-specific `BrandLogo` (`@/components/brand-logo`).
@@ -29,8 +30,9 @@ Plus the Booqable-specific `BrandLogo` (`@/components/brand-logo`).
 **Not included:** `sidebar` (an embedded Booqable app has no sidebar). There is
 no separate "Tag" — use `Badge`.
 
-Don't hand-roll primitives (tables, selects, dialogs, dropdowns, toasts) — the
-component exists; import it.
+Don't hand-roll primitives (tables, selects, dialogs, dropdowns) — the
+component exists; import it. Toasts go through `flash(type, message)` from
+`@/lib/booqable` so they render as Booqable's own back-office toasts.
 
 ## Variant conventions (unchanged from shadcn)
 

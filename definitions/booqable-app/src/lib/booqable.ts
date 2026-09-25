@@ -13,6 +13,8 @@
  * remains for raw JSON:API document access.
  */
 
+import { toast } from 'sonner'
+
 import { BooqableClient, Unauthorized } from './booqable/index.js'
 
 export interface BooqableStatus {
@@ -135,4 +137,39 @@ export async function booqableApi<T = any>(path: string, init: RequestInit = {})
 
     if (!response.ok) throw new Error(`Booqable API error ${response.status}`);
     return response.json() as Promise<T>;
+}
+
+export type FlashType = 'success' | 'error';
+
+// The back office loads the app in a cross-origin iframe, so the referrer the
+// browser sends carries the host's origin (and nothing more). Fall back to any
+// origin when the referrer is withheld; the payload is only a toast message.
+function hostOrigin(): string {
+    try {
+        return document.referrer ? new URL(document.referrer).origin : '*';
+    } catch {
+        return '*';
+    }
+}
+
+/**
+ * Reports the outcome of an action with the same toast the rest of Booqable
+ * uses. Inside the back office the message is handed to the host page, which
+ * renders it above the iframe like it does for every other app. Standalone
+ * (direct preview, automated screenshots) it falls back to a local toast so the
+ * feedback is still visible.
+ *
+ *   await booqable.orders.update(order.id, { tag_list: ['priority'] });
+ *   flash('success', 'Order marked as priority');
+ */
+export function flash(type: FlashType, message: string): void {
+    if (window.parent !== window) {
+        window.parent.postMessage(
+            { eventName: 'SET_FLASH_MESSAGE', payload: { type, message } },
+            hostOrigin()
+        );
+        return;
+    }
+
+    toast[type](message);
 }
