@@ -189,15 +189,25 @@ export function observeIframeHeight(): void {
     let frame = 0;
     let reportedHeight: number | null = null;
 
-    // `scrollHeight` leaves out the body's own margins.
+    // `scrollHeight` leaves out the body's own margins, and portals (popovers,
+    // menus) mounted next to #root, which are positioned against the viewport
+    // or the root element instead of the body.
     const contentHeight = () => {
         const { marginTop, marginBottom } = getComputedStyle(document.body);
-        return Math.ceil(document.body.scrollHeight + parseFloat(marginTop) + parseFloat(marginBottom));
+        let height = document.body.scrollHeight + parseFloat(marginTop) + parseFloat(marginBottom);
+
+        for (const element of document.body.children) {
+            const scrollOffset = getComputedStyle(element).position === 'fixed' ? 0 : window.scrollY;
+            height = Math.max(height, element.getBoundingClientRect().bottom + scrollOffset);
+        }
+
+        return Math.ceil(height);
     };
 
     const report = () => {
         const height = contentHeight();
-        if (height === reportedHeight) return;
+        // 0 means React hasn't rendered yet; reporting it would collapse the iframe.
+        if (height === 0 || height === reportedHeight) return;
 
         reportedHeight = height;
         window.parent.postMessage({ eventName: 'SET_IFRAME_HEIGHT', payload: { height } }, hostOrigin());
@@ -210,13 +220,19 @@ export function observeIframeHeight(): void {
 
     new ResizeObserver(scheduleReport).observe(document.body);
 
-    // Catches content that overflows the body box, such as a popover.
+    // Catches content outside the body box, such as a popover opening.
     new MutationObserver(scheduleReport).observe(document.body, {
         subtree: true,
         childList: true,
         characterData: true,
         attributes: true
     });
+
+    // That content can also grow without a DOM change, e.g. once an image
+    // inside a popover loads. These events don't bubble, so capture them.
+    for (const event of ['load', 'transitionend', 'animationend']) {
+        document.addEventListener(event, scheduleReport, true);
+    }
 
     scheduleReport();
 }
