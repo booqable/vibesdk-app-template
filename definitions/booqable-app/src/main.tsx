@@ -16,6 +16,9 @@ import '@fontsource/mulish/700.css'
 import '@/index.css'
 import { Toaster } from '@/components/ui/sonner'
 import { HomePage } from '@/pages/HomePage'
+import { observeIframeHeight } from '@/lib/booqable'
+
+observeIframeHeight();
 
 const queryClient = new QueryClient();
 
