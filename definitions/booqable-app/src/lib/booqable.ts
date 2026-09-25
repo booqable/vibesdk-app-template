@@ -173,3 +173,50 @@ export function flash(type: FlashType, message: string): void {
 
     toast[type](message);
 }
+
+let iframeHeightObserved = false;
+
+/**
+ * Booqable embeds the app in an iframe that keeps its initial height until the
+ * app reports its own, so anything below that height is clipped. Call once on
+ * app load (`src/main.tsx`); it keeps the iframe sized to the page from then
+ * on. No-op outside an iframe.
+ */
+export function observeIframeHeight(): void {
+    if (window.parent === window || iframeHeightObserved) return;
+    iframeHeightObserved = true;
+
+    let frame = 0;
+    let reportedHeight: number | null = null;
+
+    // `scrollHeight` leaves out the body's own margins.
+    const contentHeight = () => {
+        const { marginTop, marginBottom } = getComputedStyle(document.body);
+        return Math.ceil(document.body.scrollHeight + parseFloat(marginTop) + parseFloat(marginBottom));
+    };
+
+    const report = () => {
+        const height = contentHeight();
+        if (height === reportedHeight) return;
+
+        reportedHeight = height;
+        window.parent.postMessage({ eventName: 'SET_IFRAME_HEIGHT', payload: { height } }, hostOrigin());
+    };
+
+    const scheduleReport = () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(report);
+    };
+
+    new ResizeObserver(scheduleReport).observe(document.body);
+
+    // Catches content that overflows the body box, such as a popover.
+    new MutationObserver(scheduleReport).observe(document.body, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+        attributes: true
+    });
+
+    scheduleReport();
+}

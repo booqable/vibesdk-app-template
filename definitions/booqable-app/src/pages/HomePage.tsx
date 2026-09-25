@@ -15,7 +15,7 @@ export function HomePage() {
   }, [])
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 py-16 text-center text-foreground">
+    <main className="flex flex-col items-center justify-center gap-6 bg-background px-6 py-16 text-center text-foreground">
       <img
         src="/booqable/app-setup-loading.svg"
         alt=""
