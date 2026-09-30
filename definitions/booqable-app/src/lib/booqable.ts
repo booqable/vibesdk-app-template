@@ -173,3 +173,67 @@ export function flash(type: FlashType, message: string): void {
 
     toast[type](message);
 }
+
+let iframeHeightObserved = false;
+
+/**
+ * Booqable embeds the app in an iframe that keeps its initial height until the
+ * app reports its own, so anything below that height is clipped. Call once on
+ * app load (`src/main.tsx`); it keeps the iframe sized to the page from then
+ * on. No-op outside an iframe.
+ */
+export function observeIframeHeight(): void {
+    if (window.parent === window || iframeHeightObserved) return;
+    iframeHeightObserved = true;
+
+    let frame = 0;
+    let reportedHeight: number | null = null;
+
+    // `scrollHeight` leaves out the body's own margins, and portals (popovers,
+    // menus) mounted next to #root, which are positioned against the viewport
+    // or the root element instead of the body.
+    const contentHeight = () => {
+        const { marginTop, marginBottom } = getComputedStyle(document.body);
+        let height = document.body.scrollHeight + parseFloat(marginTop) + parseFloat(marginBottom);
+
+        for (const element of document.body.children) {
+            const scrollOffset = getComputedStyle(element).position === 'fixed' ? 0 : window.scrollY;
+            height = Math.max(height, element.getBoundingClientRect().bottom + scrollOffset);
+        }
+
+        return Math.ceil(height);
+    };
+
+    const report = () => {
+        const height = contentHeight();
+        // Before the first report, 0 means React hasn't rendered yet; reporting
+        // it would collapse the iframe. Later on it's a page that emptied out.
+        if ((height === 0 && reportedHeight === null) || height === reportedHeight) return;
+
+        reportedHeight = height;
+        window.parent.postMessage({ eventName: 'SET_IFRAME_HEIGHT', payload: { height } }, hostOrigin());
+    };
+
+    const scheduleReport = () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(report);
+    };
+
+    new ResizeObserver(scheduleReport).observe(document.body);
+
+    // Catches content outside the body box, such as a popover opening.
+    new MutationObserver(scheduleReport).observe(document.body, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+        attributes: true
+    });
+
+    // That content can also grow without a DOM change, e.g. once an image
+    // inside a popover loads. These events don't bubble, so capture them.
+    for (const event of ['load', 'transitionend', 'animationend']) {
+        document.addEventListener(event, scheduleReport, true);
+    }
+
+    scheduleReport();
+}

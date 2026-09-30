@@ -20,6 +20,8 @@ What is pre-wired (keep it working):
   bundled `booqable` client (`booqable.orders.list(...)` — JSON:API responses
   come back deserialized) or `booqableApi('/orders?...')` for raw documents,
   and the worker forwards the request with the session's access token.
+- Iframe auto-sizing: the app reports its page height to the back office so
+  the iframe grows and shrinks with the content.
 
 Prefer another template when:
 - The user wants a general-purpose website or an app unrelated to Booqable.

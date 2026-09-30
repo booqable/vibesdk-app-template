@@ -139,6 +139,18 @@ Never render your own toasts (no direct `sonner`/`toast()` calls, no custom
 notification components). Inline validation messages next to a field are fine;
 outcomes of actions go through `flash()`.
 
+## Iframe height — `observeIframeHeight()` (keep it)
+
+Booqable sizes the iframe to the height the app reports, so the page is never
+clipped or scrolled inside the back office. `observeIframeHeight()` from
+`@/lib/booqable` is called once in `src/main.tsx` and keeps reporting as the
+page changes — keep that call. Let the page grow with its content: never size
+anything with the viewport (`h-screen`, `min-h-screen`, `h-dvh`, `100vh`,
+`h-full` on the page root). Inside the iframe the viewport *is* the reported
+height, so viewport-sized layouts make the iframe grow without end. Also avoid
+a page-level scroll container (`overflow-auto` with a fixed height) — the
+iframe is already as tall as the page.
+
 **Important — automated screenshots have no Booqable session.** The build
 system inspects the app with a headless browser that opens the preview URL
 without the iframe token, so `connected` is false there. Every screen must
@@ -173,6 +185,8 @@ frontend or log them.
   directory.
 - Report action outcomes with `flash()`; never call `sonner` directly or build
   notification UI. Keep the `<Toaster />` mount in `src/main.tsx`.
+- Keep the `observeIframeHeight()` call in `src/main.tsx` and let the page grow
+  with its content (no viewport-height sizing or page-level scroll container).
 - Keep the routes `/api/booqable/session`, `/api/booqable/status`,
   `/api/oauth/callback`, and `/api/booqable/proxy/*` intact, and keep auth
   header-based — never add cookies (the cross-site iframe blocks them).
