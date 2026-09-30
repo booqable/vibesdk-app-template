@@ -206,8 +206,9 @@ export function observeIframeHeight(): void {
 
     const report = () => {
         const height = contentHeight();
-        // 0 means React hasn't rendered yet; reporting it would collapse the iframe.
-        if (height === 0 || height === reportedHeight) return;
+        // Before the first report, 0 means React hasn't rendered yet; reporting
+        // it would collapse the iframe. Later on it's a page that emptied out.
+        if ((height === 0 && reportedHeight === null) || height === reportedHeight) return;
 
         reportedHeight = height;
         window.parent.postMessage({ eventName: 'SET_IFRAME_HEIGHT', payload: { height } }, hostOrigin());
