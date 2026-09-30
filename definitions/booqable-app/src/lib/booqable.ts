@@ -8,14 +8,14 @@
  * returns an opaque session handle that we keep in memory (below) and send as
  * `Authorization: Bearer <handle>` on same-origin calls to our own worker.
  *
- * Preferred API access is the `booqable` client below (the vendored
- * @booqable/client library, see ./booqable/VENDORED.md); `booqableApi()`
+ * Preferred API access is the `booqable` client below (built on the
+ * @booqable/client package, docs in docs/booqable-client/); `booqableApi()`
  * remains for raw JSON:API document access.
  */
 
 import { toast } from 'sonner'
 
-import { BooqableClient, Unauthorized } from './booqable/index.js'
+import { BooqableClient, Unauthorized } from '@booqable/client'
 
 export interface BooqableStatus {
     connected: boolean;
@@ -66,7 +66,7 @@ export async function getBooqableStatus(): Promise<BooqableStatus | null> {
 }
 
 /**
- * The Booqable API client (vendored @booqable/client), routed through the
+ * The Booqable API client (@booqable/client), routed through the
  * worker's authenticated proxy with the in-memory session handle. Responses
  * are deserialized JSON:API: attributes flattened onto the record, included
  * relationships populated, `*_at`/`*_on` fields parsed into Date objects.

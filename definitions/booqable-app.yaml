@@ -23,4 +23,6 @@ excludes:
 package_patches:
   name: "booqable-app"
   dependencies:
+    # Pinned exactly: scripts/deploy.sh ships this version's docs with the template.
+    "@booqable/client": "2.1.1"
     "@fontsource/mulish": "^5.2.5"

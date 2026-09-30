@@ -5,8 +5,8 @@ set -euo pipefail
 # plus template_catalog.json to the deployment's R2 bucket, using the upstream
 # tooling from cloudflare/vibesdk-templates.
 #
-# Requires: git, python3 (PyYAML), bun, wrangler (authenticated against the
-# Booqable Cloudflare account).
+# Requires: git, python3 (PyYAML), bun, npm, wrangler (authenticated against
+# the Booqable Cloudflare account).
 
 UPSTREAM_REPO=${UPSTREAM_REPO:-https://github.com/cloudflare/vibesdk-templates.git}
 export R2_BUCKET_NAME=${R2_BUCKET_NAME:-vibesdk-templates}
@@ -21,6 +21,8 @@ git clone --depth 1 "$UPSTREAM_REPO" "$WORKDIR"
 echo "Injecting booqable-app definition..."
 cp "$REPO_ROOT/definitions/booqable-app.yaml" "$WORKDIR/definitions/"
 cp -R "$REPO_ROOT/definitions/booqable-app" "$WORKDIR/definitions/"
+
+"$REPO_ROOT/scripts/bundle-client-docs.sh" "$WORKDIR/definitions/booqable-app"
 
 cd "$WORKDIR"
 ./deploy_templates.sh
