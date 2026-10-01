@@ -24,10 +24,15 @@ definition format:
   `docs/boomerang/` (design-system reference for the agent), `public/brand/`.
 - `scripts/deploy.sh` — builds and uploads all templates (upstream + this one)
   to the deployment's R2 bucket.
+- `scripts/bundle-client-docs.sh` — run by `deploy.sh`; copies the README and
+  type declarations of the `@booqable/client` version pinned in
+  `definitions/booqable-app.yaml` into `docs/booqable-client/` of the template,
+  since the agent only sees seeded files, never `node_modules`. Bump the pin to
+  upgrade the client.
 
 ## Deploying to booqableapps.com
 
-Prereqs: `git`, `python3`, `bun`, and `wrangler` authenticated against the
+Prereqs: `git`, `python3`, `bun`, `npm`, and `wrangler` authenticated against the
 Booqable Cloudflare account (see `documentation/features/ai_app_builder_cloudflare_setup.md`
 in booqable/booqable).
 

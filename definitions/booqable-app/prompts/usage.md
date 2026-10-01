@@ -16,9 +16,11 @@ Booqable account through its JSON:API.
   `Env` from `./core-utils`. **Never modify `worker/index.ts` or `worker/core-utils.ts`,
   and never add extra files under `worker/`.**
 - `src/lib/booqable.ts` — the `booqable` API client plus frontend helpers
-  (`initBooqableSession`, `getBooqableStatus`, `booqableApi`).
-- `src/lib/booqable/` — the vendored `@booqable/client` library the client is
-  built on. **Never edit or delete files in this directory.**
+  (`initBooqableSession`, `getBooqableStatus`, `booqableApi`). The client is
+  built on the `@booqable/client` npm package, already in `package.json`.
+- `docs/booqable-client/` — the `@booqable/client` reference: `README.md`
+  (resources, filtering, pagination, errors) and `types/` (its type
+  declarations). Read it before calling the Booqable API.
 - `docs/boomerang/` — the design system reference (foundations, components,
   brand assets). Read it before building UI.
 
@@ -98,7 +100,7 @@ await booqable.customers.delete(customer.id);
 
    Every JSON:API resource is available the same way (`booqable.products`,
    `booqable.plannings`, `booqable.stock_items`, …). Failures throw typed
-   errors importable from `@/lib/booqable/index.js` (`NotFound`,
+   errors importable from `@booqable/client` (`NotFound`,
    `UnprocessableEntity`, `Unauthorized`, … all subclasses of `BooqableError`,
    with `.errors` carrying JSON:API validation details). **Reading an attribute
    that is absent from the payload throws `MissingAttribute`** — typos fail
@@ -125,7 +127,7 @@ above the app; standalone it falls back to the local `<Toaster />` mounted in
 
 ```typescript
 import { booqable, flash } from '@/lib/booqable';
-import { BooqableError } from '@/lib/booqable/index.js';
+import { BooqableError } from '@booqable/client';
 
 try {
     await booqable.orders.update(order.id, { tag_list: ['priority'] });
@@ -181,8 +183,8 @@ frontend or log them.
 
 - Keep the session bootstrap (`initBooqableSession()` on app load) in place, and
   always reach the API through the `booqable` client (or `booqableApi()`) so the
-  session header is attached. Never edit the vendored `src/lib/booqable/`
-  directory.
+  session header is attached. Never construct your own `BooqableClient` from
+  `@booqable/client`: it would bypass the proxy and has no credentials.
 - Report action outcomes with `flash()`; never call `sonner` directly or build
   notification UI. Keep the `<Toaster />` mount in `src/main.tsx`.
 - Keep the `observeIframeHeight()` call in `src/main.tsx` and let the page grow

@@ -12,6 +12,5 @@
     "src/lib/errorReporter.ts",
     "src/components/ErrorBoundary.tsx",
     "src/components/RouteErrorBoundary.tsx",
-    "src/lib/booqable.ts",
-    "src/lib/booqable/"
+    "src/lib/booqable.ts"
 ]
